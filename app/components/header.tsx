@@ -1,6 +1,7 @@
 import Link from "next/link";
+import React, { FC } from "react";
 
-export default function Header() {
+const Header: FC = () => {
   return (
     <header className="bg-gray-800 p-4">
       <nav className="space-x-4">
@@ -31,4 +32,6 @@ export default function Header() {
       </nav>
     </header>
   );
-}
+};
+
+export default Header;
