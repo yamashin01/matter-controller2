@@ -20,7 +20,11 @@ export function MatterCardsGrid(props: Props) {
         <Text className="font-bold" mt={5}>
           {matter.title}
         </Text>
-        <Badge color="blue">{matter.completed ? "完了" : "未完了"}</Badge>
+        {matter.isFixed ? (
+          <Badge color="blue">確定</Badge>
+        ) : (
+          <Badge color="red">未確定</Badge>
+        )}
       </Group>
       <Text className="">分類：{matter.classification}</Text>
       <Text className="">金額：{matter.billing_amount}円</Text>

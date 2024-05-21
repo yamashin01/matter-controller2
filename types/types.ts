@@ -5,6 +5,7 @@ export type MatterType = {
   classification: string;
   billing_amount: number;
   completed: boolean;
+  isFixed: boolean;
   user_id: string;
 };
 

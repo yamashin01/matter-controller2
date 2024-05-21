@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import { Text, Title } from "@mantine/core";
+import { Title } from "@mantine/core";
 import { MatterCardsGrid } from "../components/mattercard";
 
 const Matter = async () => {

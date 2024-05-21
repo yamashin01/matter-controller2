@@ -51,6 +51,7 @@ export type Database = {
           completed: boolean
           created_at: string
           id: number
+          isFixed: boolean
           title: string | null
           user_id: number | null
         }
@@ -60,6 +61,7 @@ export type Database = {
           completed?: boolean
           created_at?: string
           id?: number
+          isFixed?: boolean
           title?: string | null
           user_id?: number | null
         }
@@ -69,6 +71,7 @@ export type Database = {
           completed?: boolean
           created_at?: string
           id?: number
+          isFixed?: boolean
           title?: string | null
           user_id?: number | null
         }
