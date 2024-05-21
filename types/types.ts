@@ -1,20 +1,21 @@
-export type Matter = {
+export type MatterType = {
   id: string;
   created_at: string;
   title: string;
   classification: string;
   billing_amount: number;
+  completed: boolean;
   user_id: string;
 };
 
-export type User = {
+export type UserType = {
   id: string;
   created_at: string;
   name: string;
   class: string;
 };
 
-export type Cost = {
+export type CostType = {
   id: string;
   created_at: string;
   name: string;
