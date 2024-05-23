@@ -1,23 +1,44 @@
+"use client";
+
 import { MatterType } from "@/types/types";
 import { SimpleGrid, Card, Text, Container, Badge, Group } from "@mantine/core";
+import { useState } from "react";
+import { MatterCardDetailModal } from "../modal/mattercardDetail";
 
 type Props = {
   matterList: MatterType[];
 };
+const defaultMatter: MatterType = {
+  id: "0",
+  title: "デフォルト案件",
+  created_at: "1900/1/1",
+  classification: "default分類",
+  completed: false,
+  billing_amount: 0,
+  isFixed: false,
+  user_id: "0",
+};
 
 export function MatterCardsGrid(props: Props) {
-  console.log(props.matterList);
+  const [opened, setOpened] = useState(false);
+  const [matterInfo, setMatterInfo] = useState(defaultMatter);
+
+  const openCard = (matter: MatterType) => {
+    setMatterInfo(matter);
+    setOpened(true);
+  };
   const cards = props.matterList.map((matter) => (
     <Card
       key={matter.title}
       p="md"
       radius="md"
       component="a"
-      href="#"
-      className="hover:bg-transparent border transition"
+      className="hover:bg-transparent hover:cursor-pointer hover:bg-gray-100 border transition"
+      shadow="sm"
+      onClick={() => openCard(matter)}
     >
       <Group justify="space-between" align="flex-start">
-        <Text className="font-bold" mt={5}>
+        <Text fw={700} size="lg" mt={5}>
           {matter.title}
         </Text>
         {matter.isFixed ? (
@@ -37,6 +58,11 @@ export function MatterCardsGrid(props: Props) {
   return (
     <Container py="xl">
       <SimpleGrid cols={{ base: 1, sm: 2 }}>{cards}</SimpleGrid>
+      <MatterCardDetailModal
+        opened={opened}
+        setOpened={setOpened}
+        matterInfo={matterInfo}
+      />
     </Container>
   );
 }
