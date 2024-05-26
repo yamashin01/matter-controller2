@@ -1,26 +1,26 @@
 export type MatterType = {
-  id: string;
-  created_at: string;
-  title: string;
-  classification: string;
-  billing_amount: number;
+  billing_amount: number | null;
+  classification: string | null;
   completed: boolean;
+  created_at: string;
+  id: number;
   isFixed: boolean;
-  user_id: string;
+  title: string | null;
+  user_id: number | null;
 };
 
 export type UserType = {
-  id: string;
+  class: string | null;
   created_at: string;
-  name: string;
-  class: string;
+  id: number;
+  name: string | null;
 };
 
 export type CostType = {
-  id: string;
   created_at: string;
-  name: string;
-  price: number;
-  item: string;
-  matter_id: string;
+  id: number;
+  item: string | null;
+  matter_id: number | null;
+  name: string | null;
+  price: number | null;
 };

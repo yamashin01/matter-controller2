@@ -9,14 +9,14 @@ type Props = {
   matterList: MatterType[];
 };
 const defaultMatter: MatterType = {
-  id: "0",
+  id: 0,
   title: "デフォルト案件",
   created_at: "1900/1/1",
   classification: "default分類",
   completed: false,
   billing_amount: 0,
   isFixed: false,
-  user_id: "0",
+  user_id: 0,
 };
 
 export function MatterCardsGrid(props: Props) {

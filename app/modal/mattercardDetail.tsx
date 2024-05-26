@@ -6,21 +6,21 @@ import { useEffect } from "react";
 type Props = {
   matterInfo: MatterType;
   opened: boolean;
-  setOpened: any;
+  setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export function MatterCardDetailModal(props: Props) {
   const { matterInfo, opened } = props;
   const form = useForm({
     initialValues: {
-      id: "",
-      title: "",
+      id: 0,
+      title: "" as string | null,
       created_at: "",
-      classification: "",
+      classification: "" as string | null,
       completed: false,
-      billing_amount: 0,
+      billing_amount: null as number | null,
       isFixed: false,
-      user_id: "",
+      user_id: null as number | null,
     },
   });
 
