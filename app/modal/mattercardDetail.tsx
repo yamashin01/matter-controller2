@@ -1,5 +1,4 @@
-import { Modal, Button, Group, TextInput, Checkbox } from "@mantine/core";
-import { MatterType } from "@/types/types";
+import { MatterType } from "@/app/types/types";
 import { useForm } from "@mantine/form";
 import { useEffect } from "react";
 

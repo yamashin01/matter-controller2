@@ -1,6 +1,6 @@
 "use client";
 
-import { MatterType } from "@/types/types";
+import { MatterType } from "@/app/types/types";
 import { SimpleGrid, Card, Text, Container, Badge, Group } from "@mantine/core";
 import { useState } from "react";
 import { MatterCardDetailModal } from "../modal/mattercardDetail";
