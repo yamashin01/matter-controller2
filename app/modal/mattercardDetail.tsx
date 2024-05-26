@@ -1,3 +1,11 @@
+import {
+  Modal,
+  Button,
+  Group,
+  TextInput,
+  Checkbox,
+  NumberInput,
+} from "@mantine/core";
 import { MatterType } from "@/app/types/types";
 import { useForm } from "@mantine/form";
 import { useEffect } from "react";
@@ -50,11 +58,17 @@ export function MatterCardDetailModal(props: Props) {
           {...form.getInputProps("title")}
         />
         <TextInput
-          withAsterisk
           label="分類"
           placeholder="案件の分類をご記入ください。"
           {...form.getInputProps("classification")}
         />
+        <NumberInput
+          label="金額"
+          placeholder="金額をご記入ください。"
+          min={0}
+          {...form.getInputProps("billing_amount")}
+        />
+        {/* <Group flex={3}>{cost.name}</Group> */}
 
         <Checkbox
           mt="md"
@@ -63,7 +77,12 @@ export function MatterCardDetailModal(props: Props) {
         />
 
         <Group justify="flex-end" mt="md">
-          <Button type="submit">Submit</Button>
+          <Button type="submit" color="pink">
+            キャンセル
+          </Button>
+          <Button type="submit" color="green">
+            更新
+          </Button>
         </Group>
       </form>
     </Modal>
