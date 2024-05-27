@@ -1,12 +1,13 @@
 "use client";
 
-import { MatterType } from "@/app/types/types";
+import { CostType, MatterType } from "@/app/types/types";
 import { SimpleGrid, Card, Text, Container, Badge, Group } from "@mantine/core";
 import { useState } from "react";
 import { MatterCardDetailModal } from "../modal/mattercardDetail";
 
 type Props = {
   matterList: MatterType[];
+  costList: CostType[] | null;
 };
 const defaultMatter: MatterType = {
   id: 0,
@@ -22,8 +23,15 @@ const defaultMatter: MatterType = {
 export function MatterCardsGrid(props: Props) {
   const [opened, setOpened] = useState(false);
   const [matterInfo, setMatterInfo] = useState(defaultMatter);
+  const [costInfoList, setCostInfoList] = useState<CostType[]>([]);
 
   const openCard = (matter: MatterType) => {
+    const targetCostInfoList: CostType[] | undefined = props.costList?.filter(
+      (costInfo) => {
+        return costInfo.matter_id === matter.id;
+      },
+    );
+    if (targetCostInfoList) setCostInfoList(targetCostInfoList);
     setMatterInfo(matter);
     setOpened(true);
   };
@@ -62,6 +70,7 @@ export function MatterCardsGrid(props: Props) {
         opened={opened}
         setOpened={setOpened}
         matterInfo={matterInfo}
+        costInfoList={costInfoList}
       />
     </Container>
   );

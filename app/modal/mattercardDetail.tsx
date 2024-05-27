@@ -5,19 +5,21 @@ import {
   TextInput,
   Checkbox,
   NumberInput,
+  Table,
 } from "@mantine/core";
-import { MatterType } from "@/app/types/types";
+import { CostType, MatterType } from "@/app/types/types";
 import { useForm } from "@mantine/form";
 import { useEffect } from "react";
 
 type Props = {
   matterInfo: MatterType;
+  costInfoList: CostType[];
   opened: boolean;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export function MatterCardDetailModal(props: Props) {
-  const { matterInfo, opened } = props;
+  const { matterInfo, costInfoList, opened } = props;
   const form = useForm({
     initialValues: {
       id: 0,
@@ -28,6 +30,7 @@ export function MatterCardDetailModal(props: Props) {
       billing_amount: null as number | null,
       isFixed: false,
       user_id: null as number | null,
+      costInfoList: [] as CostType[],
     },
   });
 
@@ -41,8 +44,9 @@ export function MatterCardDetailModal(props: Props) {
       billing_amount: matterInfo.billing_amount,
       isFixed: matterInfo.isFixed,
       user_id: matterInfo.user_id,
+      costInfoList: costInfoList,
     });
-  }, [matterInfo]);
+  }, [matterInfo, costInfoList]);
 
   const closeModal = () => {
     props.setOpened(false);
@@ -75,6 +79,46 @@ export function MatterCardDetailModal(props: Props) {
           label="確定"
           {...form.getInputProps("isFixed", { type: "checkbox" })}
         />
+        <div className="border-spacing-3 h-6"></div>
+
+        <Table>
+          <thead>
+            <tr>
+              <th>コスト名</th>
+              <th>項目</th>
+              <th>金額</th>
+            </tr>
+          </thead>
+          <tbody>
+            {form.values.costInfoList.map((costInfo, index) => (
+              <tr key={costInfo.id}>
+                <td>{costInfo.name}</td>
+                <td>
+                  <TextInput
+                    value={costInfo.item ? costInfo.item : ""}
+                    onChange={(event) =>
+                      form.setFieldValue(
+                        `costInfoList.${index}.item`,
+                        event.currentTarget.value,
+                      )
+                    }
+                  />
+                </td>
+                <td>
+                  <NumberInput
+                    value={costInfo.price ? costInfo.price : 0}
+                    onChange={(value) =>
+                      form.setFieldValue(
+                        `costInfoList.${index}.price`,
+                        value || 0,
+                      )
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
 
         <Group justify="flex-end" mt="md">
           <Button type="submit" color="pink">

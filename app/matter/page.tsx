@@ -5,6 +5,7 @@ import { MatterCardsGrid } from "../components/mattercard";
 const Matter = async () => {
   const supabase = createClient();
   const { data: matterList, error } = await supabase.from("matter").select("*");
+  const { data: costList } = await supabase.from("cost").select("*");
 
   if (error) {
     console.error(error);
@@ -16,7 +17,7 @@ const Matter = async () => {
       <Title order={3} size="h1" className="flex justify-center">
         未完了の案件
       </Title>
-      <MatterCardsGrid matterList={matterList} />
+      <MatterCardsGrid matterList={matterList} costList={costList} />
     </div>
   );
 };
