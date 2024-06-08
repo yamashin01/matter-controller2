@@ -7,16 +7,20 @@ import {
   NumberInput,
   Select,
   TextInput,
-  Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useState } from "react";
 import { CiSquarePlus } from "react-icons/ci";
 import { FaRegTrashAlt } from "react-icons/fa";
 
-const NewMatterForm = () => {
-  const [inputCountOfCostInfo, setInputCountOfCostInfo] = useState<number>();
+type InputCostType = {
+  id: number;
+  name: string;
+  item: string;
+  price: number;
+};
 
+const NewMatterForm = () => {
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {
@@ -24,8 +28,23 @@ const NewMatterForm = () => {
       classification: "",
       billing_amount: 0,
       isFixed: false,
+      costList: [],
     },
   });
+
+  const [costList, setCostList] = useState<InputCostType[]>([]);
+
+  const addCost = () => {
+    setCostList([
+      ...costList,
+      { id: costList.length, name: "", item: "", price: 0 },
+    ]);
+  };
+
+  const removeCost = (id: number) => {
+    setCostList(costList.filter((cost) => cost.id !== id));
+  };
+
   return (
     <form
       className="p-4 lg:p-16 w-auto"
@@ -72,46 +91,71 @@ const NewMatterForm = () => {
           <h2 className="flex-grow text-center">価格</h2>
           <div className="w-10"></div>
         </div>
-        <div className="flex items-center pb-2">
-          <Group gap="sm" className="flex-grow" grow>
-            <TextInput
-              placeholder="品名をご記入ください。"
-              className="flex-grow"
-            />
-            <Select
-              className="flex-grow"
-              placeholder="品目を選択ください。"
-              data={["システム料", "外注費", "備品購入"]}
-            />
-            <NumberInput placeholder="¥0" className="flex-grow" />
-          </Group>
-          <div className="h-full px-2 text-lg hover:cursor-pointer ml-auto flex items-center justify-center">
-            <FaRegTrashAlt />
+
+        {costList.map((cost) => (
+          <div className="flex items-center pb-2" key={cost.id}>
+            <Group gap="sm" className="flex-grow" grow>
+              <TextInput
+                placeholder="品名をご記入ください。"
+                className="flex-grow"
+                value={cost.name}
+                onChange={(event) =>
+                  setCostList(
+                    costList.map((costVal) =>
+                      costVal.id === cost.id
+                        ? { ...costVal, name: event.target.value }
+                        : costVal,
+                    ),
+                  )
+                }
+              />
+              <Select
+                className="flex-grow"
+                placeholder="品目を選択ください。"
+                data={["システム料", "外注費", "備品購入"]}
+                required
+                value={cost.item}
+                onChange={(value) =>
+                  setCostList(
+                    costList.map((costVal) =>
+                      costVal.id === cost.id
+                        ? { ...costVal, item: value || "" }
+                        : costVal,
+                    ),
+                  )
+                }
+              />
+              <NumberInput
+                placeholder="¥0"
+                className="flex-grow"
+                value={cost.price}
+                onChange={(value) =>
+                  setCostList(
+                    costList.map((costVal) =>
+                      costVal.id === cost.id
+                        ? { ...costVal, price: Number(value) }
+                        : costVal,
+                    ),
+                  )
+                }
+              />
+            </Group>
+            <div
+              className="h-full px-2 text-lg hover:cursor-pointer ml-auto flex items-center justify-center"
+              onClick={() => removeCost(cost.id)}
+            >
+              <FaRegTrashAlt />
+            </div>
           </div>
-        </div>
-        <div className="flex items-center pb-2">
-          <Group gap="sm" className="flex-grow" grow>
-            <TextInput
-              placeholder="品名をご記入ください。"
-              className="flex-grow"
-            />
-            <Select
-              className="flex-grow"
-              placeholder="品目を選択ください。"
-              data={["システム料", "外注費", "備品購入"]}
-            />
-            <NumberInput placeholder="¥0" className="flex-grow" />
-          </Group>
-          <div className="h-full px-2 text-lg hover:cursor-pointer ml-auto flex items-center justify-center">
-            <FaRegTrashAlt />
-          </div>
-        </div>
+        ))}
+
         <Button
           type="button"
           fullWidth
           color="dark"
           variant="outline"
           rightSection={<CiSquarePlus />}
+          onClick={addCost}
         >
           コスト追加
         </Button>
