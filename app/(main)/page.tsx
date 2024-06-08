@@ -1,5 +1,5 @@
-import { Title } from "@mantine/core";
 import { MatterCardsGrid } from "../components/mattercard";
+import PageTitle from "../components/pageTitle/pageTitle";
 import { fetchMatterInfo } from "../utils/supabase/supabase";
 
 const AllMatterPage = async () => {
@@ -12,9 +12,7 @@ const AllMatterPage = async () => {
 
   return (
     <div>
-      <Title order={3} size="h1" className="flex justify-center">
-        案件一覧
-      </Title>
+      <PageTitle title="案件一覧" />
       <MatterCardsGrid matterList={matterList} />
     </div>
   );

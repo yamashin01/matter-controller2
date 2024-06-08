@@ -1,4 +1,4 @@
-import { Title } from "@mantine/core";
+import PageTitle from "@/app/components/pageTitle/pageTitle";
 import { MatterCardsGrid } from "../../components/mattercard";
 import { fetchMatterInfo } from "../../utils/supabase/supabase";
 
@@ -12,9 +12,7 @@ const CompletedPage = async () => {
 
   return (
     <div>
-      <Title order={3} size="h1" className="flex justify-center">
-        完了した案件
-      </Title>
+      <PageTitle title="完了した案件" />
       <MatterCardsGrid matterList={matterList} />
     </div>
   );
