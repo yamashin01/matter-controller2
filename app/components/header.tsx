@@ -9,19 +9,19 @@ const Header: FC = () => {
           href="/"
           className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
         >
-          トップページ
+          全ての案件
         </Link>
         <Link
-          href="/matter"
-          className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
-        >
-          未完了の案件
-        </Link>
-        <Link
-          href="/completed-matter"
+          href="/completed"
           className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
         >
           完了した案件
+        </Link>
+        <Link
+          href="/new"
+          className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
+        >
+          新規作成
         </Link>
         <Link
           href="/login"

@@ -2,7 +2,7 @@ import { Title } from "@mantine/core";
 import { MatterCardsGrid } from "../components/mattercard";
 import { fetchMatterInfo } from "../utils/supabase/supabase";
 
-const Matter = async () => {
+const AllMatterPage = async () => {
   const { matterList, error } = await fetchMatterInfo();
 
   if (error) {
@@ -13,11 +13,11 @@ const Matter = async () => {
   return (
     <div>
       <Title order={3} size="h1" className="flex justify-center">
-        未完了の案件
+        案件一覧
       </Title>
       <MatterCardsGrid matterList={matterList} />
     </div>
   );
 };
 
-export default Matter;
+export default AllMatterPage;
