@@ -146,18 +146,25 @@ export function MatterCardDetailModal(props: Props) {
           </tbody>
         </Table>
 
-        <Group justify="flex-end" mt="md">
-          <Button type="submit" color="pink" onClick={closeModal}>
-            キャンセル
-          </Button>
-          <Button
-            type="submit"
-            color="green"
-            onClick={() => updateInfoInSupabase(matterInfo)}
-          >
-            更新
-          </Button>
-        </Group>
+        <div className="flex justify-between">
+          <Group justify="flex-end" mt="md">
+            <Button type="submit" color="gray" onClick={closeModal}>
+              削除
+            </Button>
+          </Group>
+          <Group justify="flex-end" mt="md">
+            <Button type="submit" color="pink" onClick={closeModal}>
+              キャンセル
+            </Button>
+            <Button
+              type="submit"
+              color="green"
+              onClick={() => updateInfoInSupabase(matterInfo)}
+            >
+              更新
+            </Button>
+          </Group>
+        </div>
       </form>
     </Modal>
   );
