@@ -6,6 +6,7 @@ import "./globals.css";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import Header from "./components/header";
 import { Footer } from "./components/footer";
+import { Providers } from "../components/providers";
 
 export const metadata = {
   title: "案件管理システム",
@@ -23,9 +24,11 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body>
-        <Header />
-        <MantineProvider>{children}</MantineProvider>
-        <Footer />
+        <Providers>
+          <Header />
+          <MantineProvider>{children}</MantineProvider>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );
