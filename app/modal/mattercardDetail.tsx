@@ -73,6 +73,11 @@ export function MatterCardDetailModal(props: Props) {
     props.setOpened(false);
   };
 
+  const updateInfoInSupabase = (matterInfo: MatterType) => {
+    updateMatterInfo(matterInfo);
+    closeModal();
+  };
+
   return (
     <Modal opened={opened} onClose={closeModal} title={matterInfo.title}>
       <form onSubmit={form.onSubmit((values) => console.log(values))}>
@@ -142,10 +147,14 @@ export function MatterCardDetailModal(props: Props) {
         </Table>
 
         <Group justify="flex-end" mt="md">
-          <Button type="submit" color="pink">
+          <Button type="submit" color="pink" onClick={closeModal}>
             キャンセル
           </Button>
-          <Button type="submit" color="green">
+          <Button
+            type="submit"
+            color="green"
+            onClick={() => updateInfoInSupabase(matterInfo)}
+          >
             更新
           </Button>
         </Group>
