@@ -1,11 +1,9 @@
-import { createClient } from "@/app/utils/supabase/server";
 import { Title } from "@mantine/core";
 import { MatterCardsGrid } from "../components/mattercard";
+import { fetchMatterInfo } from "../utils/supabase/supabase";
 
 const Matter = async () => {
-  const supabase = createClient();
-  const { data: matterList, error } = await supabase.from("matter").select("*");
-  const { data: costList } = await supabase.from("cost").select("*");
+  const { matterList, error } = await fetchMatterInfo();
 
   if (error) {
     console.error(error);
@@ -17,7 +15,7 @@ const Matter = async () => {
       <Title order={3} size="h1" className="flex justify-center">
         未完了の案件
       </Title>
-      <MatterCardsGrid matterList={matterList} costList={costList} />
+      <MatterCardsGrid matterList={matterList} />
     </div>
   );
 };

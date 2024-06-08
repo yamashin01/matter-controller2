@@ -9,17 +9,21 @@ import {
 } from "@mantine/core";
 import { CostType, MatterType } from "@/app/types/types";
 import { useForm } from "@mantine/form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+  fetchCostInfoById,
+  updateMatterInfo,
+} from "../utils/supabase/supabase";
 
 type Props = {
   matterInfo: MatterType;
-  costInfoList: CostType[];
   opened: boolean;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export function MatterCardDetailModal(props: Props) {
-  const { matterInfo, costInfoList, opened } = props;
+  const { matterInfo, opened } = props;
+  const [costInfoList, setCostInfoList] = useState<CostType[]>();
   const form = useForm({
     initialValues: {
       id: 0,
@@ -35,6 +39,23 @@ export function MatterCardDetailModal(props: Props) {
   });
 
   useEffect(() => {
+    // クライアントサイドで追加データを取得する例
+    const getCostInfo = async () => {
+      const { costInfoList, error } = await fetchCostInfoById(matterInfo.id);
+
+      if (error) {
+        console.error("Error fetching additional data:", error);
+      } else if (!costInfoList) {
+        console.log(`costInfo of matter[ID:${matterInfo.id}] is empty.`);
+      } else {
+        setCostInfoList(costInfoList); // 取得したデータで状態を更新
+      }
+    };
+
+    getCostInfo();
+  }, [matterInfo.id]);
+
+  useEffect(() => {
     form.setValues({
       id: matterInfo.id,
       title: matterInfo.title,
@@ -44,9 +65,9 @@ export function MatterCardDetailModal(props: Props) {
       billing_amount: matterInfo.billing_amount,
       isFixed: matterInfo.isFixed,
       user_id: matterInfo.user_id,
-      costInfoList: costInfoList,
+      costInfoList: costInfoList || [],
     });
-  }, [matterInfo, costInfoList]);
+  }, [matterInfo]);
 
   const closeModal = () => {
     props.setOpened(false);
