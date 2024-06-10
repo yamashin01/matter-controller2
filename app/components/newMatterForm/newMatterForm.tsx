@@ -1,5 +1,7 @@
 "use client";
 
+import { MatterType } from "@/app/types/types";
+import { insertMatterInfo } from "@/app/utils/supabase/supabase";
 import {
   Button,
   Checkbox,
@@ -32,7 +34,20 @@ const NewMatterForm = () => {
     },
   });
 
-  const [costList, setCostList] = useState<InputCostType[]>([]);
+  const [matterInfo, setMatterInfo] = useState<MatterType>({
+    id: 0,
+    title: "",
+    classification: "",
+    billing_amount: 0,
+    isFixed: false,
+    completed: false,
+    created_at: "",
+    user_id: 0,
+  });
+  const [costList, setCostList] = useState<InputCostType[]>([
+    { id: 0, name: "", item: "", price: 0 },
+  ]);
+  console.log(matterInfo);
 
   const addCost = () => {
     setCostList([
@@ -43,6 +58,18 @@ const NewMatterForm = () => {
 
   const removeCost = (id: number) => {
     setCostList(costList.filter((cost) => cost.id !== id));
+  };
+
+  const handleAddMatterInfo = async () => {
+    const { error } = await insertMatterInfo(matterInfo);
+
+    if (error) {
+      console.error(error);
+      alert(`${matterInfo.title}の新規登録に失敗しました。`);
+    } else {
+      alert(`${matterInfo.title}の新規登録を完了しました。`);
+      form.reset();
+    }
   };
 
   return (
@@ -57,6 +84,9 @@ const NewMatterForm = () => {
         label="案件名"
         key={form.key("title")}
         {...form.getInputProps("title")}
+        onChange={(event) =>
+          setMatterInfo({ ...matterInfo, title: event.currentTarget.value })
+        }
       />
 
       <Select
@@ -65,6 +95,9 @@ const NewMatterForm = () => {
         placeholder="案件に適した分類を選択して下さい。"
         label="分類"
         data={["会員費", "受託案件", "ボードゲーム制作", "イベント"]}
+        onChange={(event) =>
+          setMatterInfo({ ...matterInfo, classification: event })
+        }
       />
 
       <NumberInput
@@ -73,6 +106,9 @@ const NewMatterForm = () => {
         label="金額"
         key={form.key("billing_amount")}
         {...form.getInputProps("billing_amount")}
+        onChange={(event) =>
+          setMatterInfo({ ...matterInfo, billing_amount: Number(event) })
+        }
       />
 
       <Checkbox
@@ -81,6 +117,9 @@ const NewMatterForm = () => {
         label="確定"
         key={form.key("isFixed")}
         {...form.getInputProps("isFixed", { type: "checkbox" })}
+        onChange={(event) =>
+          setMatterInfo({ ...matterInfo, isFixed: event.currentTarget.checked })
+        }
       />
 
       <h1 className="pt-8 text-xl text-gray-700 font-bold">コスト</h1>
@@ -162,7 +201,9 @@ const NewMatterForm = () => {
       </div>
 
       <Group className="pt-8" justify="flex-end" mt="md">
-        <Button type="submit">作成</Button>
+        <Button type="submit" onClick={handleAddMatterInfo}>
+          作成
+        </Button>
       </Group>
     </form>
   );

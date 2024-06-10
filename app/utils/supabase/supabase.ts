@@ -56,3 +56,24 @@ export const updateMatterInfo = async (props: MatterType) => {
     console.error(error);
   }
 };
+
+export const insertMatterInfo = async (props: MatterType) => {
+  const { data, error } = await supabase
+    .from("matter")
+    .insert([
+      {
+        title: props.title,
+        classification: props.classification,
+        billing_amount: props.billing_amount,
+        isFixed: props.isFixed,
+        completed: false,
+        created_at: new Date(),
+        user_id: 1,
+      },
+    ])
+    .select("id");
+
+  const newId = data ? data[0].id : null;
+
+  return { error, newId };
+};
