@@ -1,6 +1,6 @@
 "use server";
 
-import { MatterType } from "@/app/types/types";
+import { CostType, MatterType } from "@/app/types/types";
 import supabase from "./client";
 import { createClient } from "./server";
 
@@ -75,5 +75,22 @@ export const insertMatterInfo = async (props: MatterType) => {
 
   const newId = data ? data[0].id : null;
 
-  return { error, newId };
+  return { newId, error };
+};
+
+export const insertCostInfo = async (props: CostType) => {
+  const { data, error } = await supabase
+    .from("cost")
+    .insert([
+      {
+        name: props.name,
+        price: props.price,
+        item: props.item,
+        matter_id: props.matter_id,
+        created_at: new Date(),
+      },
+    ])
+    .select("id");
+
+  return { error };
 };

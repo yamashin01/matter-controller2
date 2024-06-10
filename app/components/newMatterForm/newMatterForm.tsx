@@ -1,7 +1,10 @@
 "use client";
 
-import { MatterType } from "@/app/types/types";
-import { insertMatterInfo } from "@/app/utils/supabase/supabase";
+import { CostType, MatterType } from "@/app/types/types";
+import {
+  insertCostInfo,
+  insertMatterInfo,
+} from "@/app/utils/supabase/supabase";
 import {
   Button,
   Checkbox,
@@ -61,14 +64,28 @@ const NewMatterForm = () => {
   };
 
   const handleAddMatterInfo = async () => {
-    const { error } = await insertMatterInfo(matterInfo);
+    try {
+      const { newId, error: matterError } = await insertMatterInfo(matterInfo);
+      if (matterError) throw new Error(matterError.message);
 
-    if (error) {
-      console.error(error);
-      alert(`${matterInfo.title}の新規登録に失敗しました。`);
-    } else {
+      for (const cost of costList) {
+        const costInfo: CostType = {
+          id: 0,
+          name: cost.name,
+          price: cost.price,
+          item: cost.item,
+          matter_id: newId,
+          created_at: "",
+        };
+        const { error: costError } = await insertCostInfo(costInfo);
+        if (costError) throw new Error(costError.message);
+      }
       alert(`${matterInfo.title}の新規登録を完了しました。`);
       form.reset();
+      setCostList([{ id: 0, name: "", item: "", price: 0 }]);
+    } catch (error) {
+      alert(`${matterInfo.title}の新規登録に失敗しました。`);
+      console.error(error);
     }
   };
 
@@ -95,6 +112,7 @@ const NewMatterForm = () => {
         placeholder="案件に適した分類を選択して下さい。"
         label="分類"
         data={["会員費", "受託案件", "ボードゲーム制作", "イベント"]}
+        clearable
         onChange={(event) =>
           setMatterInfo({ ...matterInfo, classification: event })
         }
@@ -104,6 +122,10 @@ const NewMatterForm = () => {
         withAsterisk
         className="pt-4"
         label="金額"
+        prefix="¥"
+        allowNegative={false}
+        allowDecimal={false}
+        thousandSeparator=","
         key={form.key("billing_amount")}
         {...form.getInputProps("billing_amount")}
         onChange={(event) =>
@@ -168,6 +190,10 @@ const NewMatterForm = () => {
                 placeholder="¥0"
                 className="flex-grow"
                 value={cost.price}
+                prefix="¥"
+                allowNegative={false}
+                allowDecimal={false}
+                thousandSeparator=","
                 onChange={(value) =>
                   setCostList(
                     costList.map((costVal) =>
