@@ -50,7 +50,6 @@ const NewMatterForm = () => {
   const [costList, setCostList] = useState<InputCostType[]>([
     { id: 0, name: "", item: "", price: 0 },
   ]);
-  console.log(matterInfo);
 
   const addCost = () => {
     setCostList([

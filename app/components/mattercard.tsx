@@ -28,6 +28,7 @@ export function MatterCardsGrid(props: Props) {
     setMatterInfo(matter);
     setOpened(true);
   };
+
   const cards = props.matterList?.map((matter) => (
     <Card
       key={matter.title}

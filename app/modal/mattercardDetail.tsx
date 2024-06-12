@@ -22,8 +22,8 @@ type Props = {
 };
 
 export function MatterCardDetailModal(props: Props) {
-  const { matterInfo, opened } = props;
-  const [costInfoList, setCostInfoList] = useState<CostType[]>();
+  const { matterInfo, opened, setOpened } = props;
+  const [costInfoList, setCostInfoList] = useState<CostType[]>([]);
   const form = useForm({
     initialValues: {
       id: 0,
@@ -39,48 +39,55 @@ export function MatterCardDetailModal(props: Props) {
   });
 
   useEffect(() => {
-    // クライアントサイドで追加データを取得する例
-    const getCostInfo = async () => {
-      const { costInfoList, error } = await fetchCostInfoById(matterInfo.id);
+    if (opened) {
+      const getCostInfo = async () => {
+        const { costInfoList, error } = await fetchCostInfoById(matterInfo.id);
 
-      if (error) {
-        console.error("Error fetching additional data:", error);
-      } else if (!costInfoList) {
-        console.log(`costInfo of matter[ID:${matterInfo.id}] is empty.`);
-      } else {
-        setCostInfoList(costInfoList); // 取得したデータで状態を更新
-      }
-    };
-
-    getCostInfo();
-  }, [matterInfo.id]);
+        if (error) {
+          console.error("Error fetching additional data:", error);
+        } else {
+          setCostInfoList(costInfoList || []);
+        }
+      };
+      getCostInfo();
+    }
+  }, [matterInfo.id, opened]);
 
   useEffect(() => {
-    form.setValues({
-      id: matterInfo.id,
-      title: matterInfo.title,
-      created_at: matterInfo.created_at,
-      classification: matterInfo.classification,
-      completed: matterInfo.completed,
-      billing_amount: matterInfo.billing_amount,
-      isFixed: matterInfo.isFixed,
-      user_id: matterInfo.user_id,
-      costInfoList: costInfoList || [],
-    });
-  }, [matterInfo]);
+    if (opened) {
+      form.setValues({
+        id: matterInfo.id,
+        title: matterInfo.title,
+        created_at: matterInfo.created_at,
+        classification: matterInfo.classification,
+        completed: matterInfo.completed,
+        billing_amount: matterInfo.billing_amount,
+        isFixed: matterInfo.isFixed,
+        user_id: matterInfo.user_id,
+        costInfoList: costInfoList,
+      });
+    }
+  }, [costInfoList, opened]);
 
   const closeModal = () => {
-    props.setOpened(false);
+    setOpened(false);
+    setCostInfoList([]);
+    form.reset();
   };
 
-  const updateInfoInSupabase = (matterInfo: MatterType) => {
-    updateMatterInfo(matterInfo);
+  const updateInfoInSupabase = async (values: MatterType) => {
+    await updateMatterInfo(values);
     closeModal();
   };
 
   return (
     <Modal opened={opened} onClose={closeModal} title={matterInfo.title}>
-      <form onSubmit={form.onSubmit((values) => console.log(values))}>
+      <form
+        onSubmit={form.onSubmit((values) => {
+          console.log(values);
+          updateInfoInSupabase(values);
+        })}
+      >
         <TextInput
           withAsterisk
           label="案件名"
@@ -98,7 +105,6 @@ export function MatterCardDetailModal(props: Props) {
           min={0}
           {...form.getInputProps("billing_amount")}
         />
-        {/* <Group flex={3}>{cost.name}</Group> */}
 
         <Checkbox
           mt="md"
@@ -153,14 +159,10 @@ export function MatterCardDetailModal(props: Props) {
             </Button>
           </Group>
           <Group justify="flex-end" mt="md">
-            <Button type="submit" color="pink" onClick={closeModal}>
+            <Button type="button" color="pink" onClick={closeModal}>
               キャンセル
             </Button>
-            <Button
-              type="submit"
-              color="green"
-              onClick={() => updateInfoInSupabase(matterInfo)}
-            >
+            <Button type="submit" color="green">
               更新
             </Button>
           </Group>
