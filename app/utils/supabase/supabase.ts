@@ -2,6 +2,7 @@
 
 import { CostType, MatterType } from "@/app/types/types";
 import supabase from "./client";
+import { createClient } from "./server";
 
 type Props = {
   matter_id: number;
@@ -23,7 +24,11 @@ export const fetchCostInfoByMatterId = async (props: Props) => {
 };
 
 export const fetchMatterInfo = async () => {
-  const { data: matterList, error } = await supabase.from("matter").select("*");
+  const supabase = createClient();
+  const { data: matterList, error } = await supabase
+    .from("matter")
+    .select("*")
+    .order("id");
 
   return { matterList, error };
 };
@@ -38,7 +43,7 @@ export const fetchCostInfoById = async (matter_id: number) => {
 };
 
 export const updateMatterInfo = async (props: MatterType) => {
-  const { error } = await supabase
+  const { data: status, error } = await supabase
     .from("matter")
     .update({
       billing_amount: props.billing_amount,
@@ -48,9 +53,20 @@ export const updateMatterInfo = async (props: MatterType) => {
     })
     .eq("id", props.id);
 
-  if (error) {
-    console.error(error);
-  }
+  return { status, error };
+};
+
+export const updateCostInfo = async (props: CostType) => {
+  const { data: status, error } = await supabase
+    .from("cost")
+    .update({
+      name: props.name,
+      item: props.item,
+      price: props.price,
+    })
+    .eq("id", props.id);
+
+  return { status, error };
 };
 
 export const insertMatterInfo = async (props: MatterType) => {

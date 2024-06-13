@@ -12,6 +12,7 @@ import { useForm } from "@mantine/form";
 import { useEffect, useState } from "react";
 import {
   fetchCostInfoById,
+  updateCostInfo,
   updateMatterInfo,
 } from "../utils/supabase/supabase";
 
@@ -19,6 +20,18 @@ type Props = {
   matterInfo: MatterType;
   opened: boolean;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+type SubmissionType = {
+  id: number;
+  title: string | null;
+  created_at: string;
+  classification: string | null;
+  completed: boolean;
+  billing_amount: number | null;
+  isFixed: boolean;
+  user_id: number | null;
+  costInfoList: CostType[];
 };
 
 export function MatterCardDetailModal(props: Props) {
@@ -75,17 +88,40 @@ export function MatterCardDetailModal(props: Props) {
     form.reset();
   };
 
-  const updateInfoInSupabase = async (values: MatterType) => {
-    await updateMatterInfo(values);
+  const updateInfoInSupabase = async (submittedInfo: SubmissionType) => {
+    const matterInfoToUpdate: MatterType = {
+      id: matterInfo.id,
+      title: submittedInfo.title,
+      classification: submittedInfo.classification,
+      billing_amount: submittedInfo.billing_amount,
+      isFixed: submittedInfo.isFixed,
+      completed: false,
+      created_at: "",
+      user_id: matterInfo.user_id,
+    };
+    await updateMatterInfo(matterInfoToUpdate);
+
+    for (const costInfo of submittedInfo.costInfoList) {
+      const costInfoToUpdate: CostType = {
+        id: costInfo.id,
+        name: costInfo.name,
+        item: costInfo.item,
+        price: costInfo.price,
+        matter_id: matterInfo.id,
+        created_at: "",
+      };
+      await updateCostInfo(costInfoToUpdate);
+    }
     closeModal();
   };
 
   return (
     <Modal opened={opened} onClose={closeModal} title={matterInfo.title}>
       <form
-        onSubmit={form.onSubmit((values) => {
-          console.log(values);
-          updateInfoInSupabase(values);
+        onSubmit={form.onSubmit((submittedInfo) => {
+          console.log(submittedInfo);
+
+          updateInfoInSupabase(submittedInfo);
         })}
       >
         <TextInput
@@ -103,6 +139,10 @@ export function MatterCardDetailModal(props: Props) {
           label="金額"
           placeholder="金額をご記入ください。"
           min={0}
+          prefix="¥"
+          allowNegative={false}
+          allowDecimal={false}
+          thousandSeparator=","
           {...form.getInputProps("billing_amount")}
         />
 
@@ -124,7 +164,17 @@ export function MatterCardDetailModal(props: Props) {
           <tbody>
             {form.values.costInfoList.map((costInfo, index) => (
               <tr key={costInfo.id}>
-                <td>{costInfo.name}</td>
+                <td>
+                  <TextInput
+                    value={costInfo.name ? costInfo.name : ""}
+                    onChange={(event) =>
+                      form.setFieldValue(
+                        `costInfoList.${index}.name`,
+                        event.currentTarget.value,
+                      )
+                    }
+                  />
+                </td>
                 <td>
                   <TextInput
                     value={costInfo.item ? costInfo.item : ""}
@@ -139,6 +189,10 @@ export function MatterCardDetailModal(props: Props) {
                 <td>
                   <NumberInput
                     value={costInfo.price ? costInfo.price : 0}
+                    prefix="¥"
+                    allowNegative={false}
+                    allowDecimal={false}
+                    thousandSeparator=","
                     onChange={(value) =>
                       form.setFieldValue(
                         `costInfoList.${index}.price`,
