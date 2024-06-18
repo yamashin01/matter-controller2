@@ -106,3 +106,15 @@ export const insertCostInfo = async (props: CostType) => {
 
   return { error };
 };
+
+export const deleteMatterInfoInSupabase = async (matterId: number) => {
+  const { status } = await supabase.from("matter").delete().eq("id", matterId);
+
+  return { status };
+};
+
+export const deleteCostInfoInSupabase = async (costId: number) => {
+  const { status } = await supabase.from("cost").delete().eq("id", costId);
+
+  return { status };
+};

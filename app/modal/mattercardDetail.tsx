@@ -11,6 +11,8 @@ import { CostType, MatterType } from "@/app/types/types";
 import { useForm } from "@mantine/form";
 import { useEffect, useState } from "react";
 import {
+  deleteCostInfoInSupabase,
+  deleteMatterInfoInSupabase,
   fetchCostInfoById,
   updateCostInfo,
   updateMatterInfo,
@@ -115,6 +117,23 @@ export function MatterCardDetailModal(props: Props) {
     closeModal();
   };
 
+  const deleteMatterInfo = async () => {
+    if (matterInfo.isFixed) {
+      alert("確定済みの案件は削除できません。");
+      closeModal();
+      return;
+    }
+
+    if (costInfoList) {
+      for (const costInfo of costInfoList) {
+        await deleteCostInfoInSupabase(costInfo.id);
+      }
+    }
+
+    await deleteMatterInfoInSupabase(matterInfo.id);
+    closeModal();
+  };
+
   return (
     <Modal opened={opened} onClose={closeModal} title={matterInfo.title}>
       <form
@@ -208,7 +227,7 @@ export function MatterCardDetailModal(props: Props) {
 
         <div className="flex justify-between">
           <Group justify="flex-end" mt="md">
-            <Button type="submit" color="gray" onClick={closeModal}>
+            <Button type="button" color="gray" onClick={deleteMatterInfo}>
               削除
             </Button>
           </Group>
