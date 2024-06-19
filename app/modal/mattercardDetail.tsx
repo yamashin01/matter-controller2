@@ -5,7 +5,7 @@ import {
   TextInput,
   Checkbox,
   NumberInput,
-  Table,
+  Select,
 } from "@mantine/core";
 import { CostType, MatterType } from "@/app/types/types";
 import { useForm } from "@mantine/form";
@@ -14,14 +14,27 @@ import {
   deleteCostInfoInSupabase,
   deleteMatterInfoInSupabase,
   fetchCostInfoById,
+  insertCostInfo,
   updateCostInfo,
   updateMatterInfo,
 } from "../utils/supabase/supabase";
+import { FaRegTrashAlt } from "react-icons/fa";
+import { CiSquarePlus } from "react-icons/ci";
 
 type Props = {
   matterInfo: MatterType;
   opened: boolean;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+type CostInfoInCardType = {
+  id: number;
+  num: number;
+  name: string;
+  item: string;
+  price: number;
+  isNew: boolean;
+  isRemoved: boolean;
 };
 
 type SubmissionType = {
@@ -33,12 +46,14 @@ type SubmissionType = {
   billing_amount: number | null;
   isFixed: boolean;
   user_id: number | null;
-  costInfoList: CostType[];
+  costInfoInCardList: CostInfoInCardType[];
 };
 
 export function MatterCardDetailModal(props: Props) {
   const { matterInfo, opened, setOpened } = props;
-  const [costInfoList, setCostInfoList] = useState<CostType[]>([]);
+  const [costInfoInCardList, setCostInfoInCardList] = useState<
+    CostInfoInCardType[]
+  >([]);
   const form = useForm({
     initialValues: {
       id: 0,
@@ -49,7 +64,7 @@ export function MatterCardDetailModal(props: Props) {
       billing_amount: null as number | null,
       isFixed: false,
       user_id: null as number | null,
-      costInfoList: [] as CostType[],
+      costInfoInCardList: [] as CostInfoInCardType[],
     },
   });
 
@@ -59,9 +74,22 @@ export function MatterCardDetailModal(props: Props) {
         const { costInfoList, error } = await fetchCostInfoById(matterInfo.id);
 
         if (error) {
-          console.error("Error fetching additional data:", error);
+          console.error("Error fetching costInfoList:", error);
         } else {
-          setCostInfoList(costInfoList || []);
+          if (costInfoList) {
+            const newCostInfoInCardList = costInfoList.map(
+              (costInfo, index) => ({
+                id: costInfo.id,
+                num: index,
+                name: costInfo.name,
+                item: costInfo.item,
+                price: costInfo.price,
+                isNew: false,
+                isRemoved: false,
+              }),
+            );
+            setCostInfoInCardList(newCostInfoInCardList);
+          }
         }
       };
       getCostInfo();
@@ -79,18 +107,18 @@ export function MatterCardDetailModal(props: Props) {
         billing_amount: matterInfo.billing_amount,
         isFixed: matterInfo.isFixed,
         user_id: matterInfo.user_id,
-        costInfoList: costInfoList,
+        costInfoInCardList: costInfoInCardList,
       });
     }
-  }, [costInfoList, opened]);
+  }, [costInfoInCardList, opened]);
 
   const closeModal = () => {
     setOpened(false);
-    setCostInfoList([]);
+    setCostInfoInCardList([]);
     form.reset();
   };
 
-  const updateInfoInSupabase = async (submittedInfo: SubmissionType) => {
+  const handleUpdateInfo = async (submittedInfo: SubmissionType) => {
     const matterInfoToUpdate: MatterType = {
       id: matterInfo.id,
       title: submittedInfo.title,
@@ -103,7 +131,7 @@ export function MatterCardDetailModal(props: Props) {
     };
     await updateMatterInfo(matterInfoToUpdate);
 
-    for (const costInfo of submittedInfo.costInfoList) {
+    for (const costInfo of costInfoInCardList) {
       const costInfoToUpdate: CostType = {
         id: costInfo.id,
         name: costInfo.name,
@@ -112,20 +140,30 @@ export function MatterCardDetailModal(props: Props) {
         matter_id: matterInfo.id,
         created_at: "",
       };
-      await updateCostInfo(costInfoToUpdate);
+      if (costInfo.isRemoved) {
+        if (costInfo.id > 0) {
+          await deleteCostInfoInSupabase(costInfo.id);
+        }
+      } else {
+        if (costInfo.isNew) {
+          await insertCostInfo(costInfoToUpdate);
+        } else {
+          await updateCostInfo(costInfoToUpdate);
+        }
+      }
     }
     closeModal();
   };
 
-  const deleteMatterInfo = async () => {
+  const handleDeleteMatterInfo = async () => {
     if (matterInfo.isFixed) {
       alert("確定済みの案件は削除できません。");
       closeModal();
       return;
     }
 
-    if (costInfoList) {
-      for (const costInfo of costInfoList) {
+    if (costInfoInCardList) {
+      for (const costInfo of costInfoInCardList) {
         await deleteCostInfoInSupabase(costInfo.id);
       }
     }
@@ -134,13 +172,35 @@ export function MatterCardDetailModal(props: Props) {
     closeModal();
   };
 
+  const addCost = () => {
+    setCostInfoInCardList([
+      ...costInfoInCardList,
+      {
+        id: 0,
+        num: costInfoInCardList.length,
+        name: "",
+        item: "",
+        price: 0,
+        isNew: true,
+        isRemoved: false,
+      },
+    ]);
+  };
+
+  const removeCost = (id: number) => {
+    setCostInfoInCardList(
+      costInfoInCardList.map((costInfo) => {
+        if (costInfo.id === id) costInfo.isRemoved = true;
+        return costInfo;
+      }),
+    );
+  };
+
   return (
     <Modal opened={opened} onClose={closeModal} title={matterInfo.title}>
       <form
         onSubmit={form.onSubmit((submittedInfo) => {
-          console.log(submittedInfo);
-
-          updateInfoInSupabase(submittedInfo);
+          handleUpdateInfo(submittedInfo);
         })}
       >
         <TextInput
@@ -172,62 +232,97 @@ export function MatterCardDetailModal(props: Props) {
         />
         <div className="border-spacing-3 h-6"></div>
 
-        <Table>
-          <thead>
-            <tr>
-              <th>コスト名</th>
-              <th>項目</th>
-              <th>金額</th>
-            </tr>
-          </thead>
-          <tbody>
-            {form.values.costInfoList.map((costInfo, index) => (
-              <tr key={costInfo.id}>
-                <td>
+        <div className="pt-4">
+          {costInfoInCardList.length > 0 ? (
+            <div className="flex items-center">
+              <h2 className="flex-grow text-center">コスト名</h2>
+              <h2 className="flex-grow text-center">品目</h2>
+              <h2 className="flex-grow text-center">価格</h2>
+              <div className="w-10"></div>
+            </div>
+          ) : (
+            ""
+          )}
+
+          {costInfoInCardList.map((cost) =>
+            cost.isRemoved ? (
+              ""
+            ) : (
+              <div className="flex items-center pb-2" key={cost.id}>
+                <Group gap="sm" className="flex-grow" grow>
                   <TextInput
-                    value={costInfo.name ? costInfo.name : ""}
+                    placeholder="品名をご記入ください。"
+                    className="flex-grow"
+                    value={cost.name as string}
                     onChange={(event) =>
-                      form.setFieldValue(
-                        `costInfoList.${index}.name`,
-                        event.currentTarget.value,
+                      setCostInfoInCardList(
+                        costInfoInCardList.map((costInfo) =>
+                          costInfo.id === cost.id
+                            ? { ...costInfo, name: event.target.value }
+                            : costInfo,
+                        ),
                       )
                     }
                   />
-                </td>
-                <td>
-                  <TextInput
-                    value={costInfo.item ? costInfo.item : ""}
-                    onChange={(event) =>
-                      form.setFieldValue(
-                        `costInfoList.${index}.item`,
-                        event.currentTarget.value,
+                  <Select
+                    className="flex-grow"
+                    placeholder="品目を選択ください。"
+                    data={["システム料", "外注費", "備品購入"]}
+                    required
+                    value={cost.item}
+                    onChange={(value) =>
+                      setCostInfoInCardList(
+                        costInfoInCardList.map((costInfo) =>
+                          costInfo.id === cost.id
+                            ? { ...costInfo, item: value || "" }
+                            : costInfo,
+                        ),
                       )
                     }
                   />
-                </td>
-                <td>
                   <NumberInput
-                    value={costInfo.price ? costInfo.price : 0}
+                    placeholder="¥0"
+                    className="flex-grow"
+                    value={cost.price as number}
                     prefix="¥"
                     allowNegative={false}
                     allowDecimal={false}
                     thousandSeparator=","
                     onChange={(value) =>
-                      form.setFieldValue(
-                        `costInfoList.${index}.price`,
-                        value || 0,
+                      setCostInfoInCardList(
+                        costInfoInCardList.map((costInfo) =>
+                          costInfo.id === cost.id
+                            ? { ...costInfo, price: Number(value) }
+                            : costInfo,
+                        ),
                       )
                     }
                   />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+                </Group>
+                <div
+                  className="h-full px-2 text-lg hover:cursor-pointer ml-auto flex items-center justify-center"
+                  onClick={() => removeCost(cost.id)}
+                >
+                  <FaRegTrashAlt />
+                </div>
+              </div>
+            ),
+          )}
 
+          <Button
+            type="button"
+            fullWidth
+            color="dark"
+            variant="outline"
+            rightSection={<CiSquarePlus />}
+            onClick={addCost}
+          >
+            コスト追加
+          </Button>
+        </div>
         <div className="flex justify-between">
           <Group justify="flex-end" mt="md">
-            <Button type="button" color="gray" onClick={deleteMatterInfo}>
+            <Button type="button" color="gray" onClick={handleDeleteMatterInfo}>
               削除
             </Button>
           </Group>
