@@ -4,9 +4,9 @@ import PageTitle from "@/app/components/pageTitle/pageTitle";
 import { Button, Container, PasswordInput, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useRouter } from "next/navigation";
-import { login } from "./actions";
+import { signup } from "../login/actions";
 
-export default function LoginPage() {
+export default function SignUpPage() {
   const router = useRouter();
   const form = useForm({
     mode: "uncontrolled",
@@ -22,18 +22,14 @@ export default function LoginPage() {
     },
   });
 
-  const handleSignUpClick = () => {
-    router.push("/signup");
+  const handleLoginClick = () => {
+    router.push("/login");
   };
 
   return (
     <div>
-      <PageTitle title="ログイン" />
-      <form
-        className="p-4 lg:p-16 w-auto"
-        // onSubmit={form.onSubmit((values) => login(values))}
-        action={login}
-      >
+      <PageTitle title="新規登録" />
+      <form className="p-4 lg:p-16 w-auto" action={signup}>
         <TextInput
           withAsterisk
           label="Email"
@@ -54,6 +50,17 @@ export default function LoginPage() {
           key={form.key("password")}
           {...form.getInputProps("password")}
         />
+        <PasswordInput
+          withAsterisk
+          label="Password"
+          size="md"
+          className="p-4"
+          placeholder="念の為、もう一度パスワードをご記入ください。"
+          name="password"
+          key={form.key("password")}
+          {...form.getInputProps("password")}
+        />
+
         <Container className="p-4">
           <Button
             type="submit"
@@ -61,9 +68,9 @@ export default function LoginPage() {
             size="md"
             fullWidth
             my={16}
-            color="blue"
+            color="pink"
           >
-            ログイン
+            新規登録
           </Button>
           <Button
             type="button"
@@ -71,10 +78,10 @@ export default function LoginPage() {
             size="md"
             fullWidth
             my={16}
-            color="pink"
-            onClick={handleSignUpClick}
+            color="blue"
+            onClick={handleLoginClick}
           >
-            新規会員登録はこちら
+            ログインはこちら
           </Button>
         </Container>
       </form>
