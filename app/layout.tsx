@@ -25,9 +25,7 @@ export default function RootLayout({
       </head>
       <body>
         <Providers>
-          <Header />
           <MantineProvider>{children}</MantineProvider>
-          <Footer />
         </Providers>
       </body>
     </html>
