@@ -4,7 +4,7 @@ import PageTitle from "@/app/components/pageTitle/pageTitle";
 import { Button, Container, PasswordInput, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useRouter } from "next/navigation";
-import { signup } from "../login/actions";
+import { signup } from "../confirm/actions";
 
 export default function SignUpPage() {
   const router = useRouter();
